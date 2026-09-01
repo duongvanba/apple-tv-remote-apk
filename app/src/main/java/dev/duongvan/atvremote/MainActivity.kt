@@ -1,6 +1,7 @@
 package dev.duongvan.atvremote
 
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -37,16 +38,27 @@ class MainActivity : ComponentActivity() {
         if (connected) {
             when (event.keyCode) {
                 KeyEvent.KEYCODE_VOLUME_UP -> {
-                    if (event.action == KeyEvent.ACTION_DOWN) viewModel.volumeUp()
+                    if (event.action == KeyEvent.ACTION_DOWN) {
+                        tick()
+                        viewModel.volumeUp()
+                    }
                     return true
                 }
                 KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                    if (event.action == KeyEvent.ACTION_DOWN) viewModel.volumeDown()
+                    if (event.action == KeyEvent.ACTION_DOWN) {
+                        tick()
+                        viewModel.volumeDown()
+                    }
                     return true
                 }
             }
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    /** Light tick so a volume press is felt even though nothing moves on screen. */
+    private fun tick() {
+        window.decorView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
     }
 }
 
@@ -55,7 +67,10 @@ private fun AppRoot(viewModel: RemoteViewModel) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        if (state.selected == null) viewModel.startScan()
+        // A restored device is only a name and an address: it still has to be
+        // connected before the remote can send anything.
+        val restored = state.selected
+        if (restored == null) viewModel.startScan() else viewModel.select(restored)
     }
 
     if (state.selected == null) {

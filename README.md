@@ -12,18 +12,22 @@ toàn bộ phần bắt tay, mã hoá và giao thức được viết lại bằ
 
 - Quét mDNS `_companion-link._tcp` và liệt kê Apple TV trong mạng nội bộ
 - Ô nhập IP + cổng thủ công cho trường hợp mDNS bị chặn
-- Nhớ thiết bị dùng lần cuối
+- Nhớ thiết bị dùng lần cuối và tự kết nối lại khi mở app
 
 **Màn hình điều khiển**
 
 - Ô cảm ứng toàn màn hình hoạt động như bàn di của Siri Remote: vuốt gửi toạ độ
   tuyệt đối `0..1000`, chạm để chọn, giữ để mở menu ngữ cảnh
-- Thanh dưới cùng: **Quay lại · Home · Đang chạy · Phát/Dừng · Tắt tiếng**
-- **Phím âm lượng vật lý** của điện thoại điều khiển âm lượng Apple TV; sự kiện
-  bị chặn lại nên không làm đổi âm lượng của máy
+- Thanh dưới cùng: **Quay lại · Home · Đang chạy · Phát/Dừng · Tắt tiếng**, mỗi nút
+  đều có phản hồi rung. Giữ **Home** để mở Control Center, còn **Đang chạy** gửi
+  hai lần nhấn Home để bật App Switcher
+- **Phím âm lượng vật lý** của điện thoại điều khiển âm lượng Apple TV kèm một nhịp
+  rung nhẹ; sự kiện bị chặn lại nên không làm đổi âm lượng của máy
 - Nút menu ở góc phải mở **modal danh sách ứng dụng** dạng lưới 5 cột, chọn app
   là mở luôn trên TV
-- Icon app lấy từ iTunes lookup theo bundle ID, cache trên đĩa nên chỉ tải một lần
+- Icon app lấy từ iTunes lookup theo bundle ID, cache trên đĩa nên chỉ tải một lần;
+  các app sẵn có của tvOS (App Store, Arcade, Cài đặt, Máy tính, Nhạc, TV, Tìm kiếm)
+  dùng icon vector cố định vì không có trên App Store
 - **Nhập văn bản** cho ô tìm kiếm của tvOS: gõ trên bàn phím điện thoại rồi gửi sang TV,
   có tuỳ chọn xoá sạch nội dung cũ trước khi gửi
 - Ghép nối một lần bằng mã PIN hiện trên TV, credentials lưu riêng theo từng thiết bị
@@ -91,7 +95,8 @@ cả trường hợp văn bản tiếng Việt có dấu (chuỗi UTF-16).
   lượng của TV qua HDMI-CEC thay vì tự quản lý, lệnh này sẽ báo lỗi — dùng phím
   âm lượng vật lý thay thế.
 - Companion không trả về ảnh icon, nên icon được tra từ App Store theo bundle ID.
-  App hệ thống của tvOS và app cài tay không có trên store sẽ hiện chữ viết tắt.
+  App sẵn có của tvOS dùng icon vector cố định; app cài tay không có trên store sẽ
+  hiện chữ viết tắt.
 - Chưa hỗ trợ Siri.
 - Cổng Companion do thiết bị cấp động, nên khi nhập thủ công cần cả IP lẫn cổng.
 - APK trong Releases được ký bằng debug key, đủ để cài trực tiếp nhưng không phát

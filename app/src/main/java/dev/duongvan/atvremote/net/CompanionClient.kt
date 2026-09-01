@@ -424,6 +424,13 @@ class CompanionClient(
         request("_hidC", linkedMapOf("_hBtS" to 2, "_hidC" to command.value))
     }
 
+    /** tvOS opens the app switcher on a double press of the home button. */
+    suspend fun doublePressButton(command: HidCommand, gapMs: Long = 120) {
+        pressButton(command)
+        kotlinx.coroutines.delay(gapMs)
+        pressButton(command)
+    }
+
     suspend fun holdButton(command: HidCommand, durationMs: Long) {
         request("_hidC", linkedMapOf("_hBtS" to 1, "_hidC" to command.value))
         kotlinx.coroutines.delay(durationMs)

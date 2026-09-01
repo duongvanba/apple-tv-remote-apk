@@ -195,7 +195,11 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
 
     fun press(button: HidCommand) = execute { pressButton(button) }
 
+    /** Press and hold home opens Control Center on tvOS. */
     fun holdHome() = execute { holdButton(HidCommand.Home, 1200) }
+
+    /** A double press of home is what brings up the app switcher. */
+    fun appSwitcher() = execute { doublePressButton(HidCommand.Home) }
 
     fun holdSelect() = execute { holdButton(HidCommand.Select, 1000) }
 

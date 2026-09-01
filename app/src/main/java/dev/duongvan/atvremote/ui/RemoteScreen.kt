@@ -1,5 +1,6 @@
 package dev.duongvan.atvremote.ui
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Apps
@@ -74,6 +75,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
@@ -199,7 +201,7 @@ private fun ConnectedRemote(
         )
 
         Text(
-            text = "Phím âm lượng vật lý của điện thoại điều khiển âm lượng Apple TV",
+            text = "Phím âm lượng vật lý điều khiển âm lượng Apple TV · giữ Home để mở Control Center",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -210,7 +212,8 @@ private fun ConnectedRemote(
             muted = state.muted,
             onBack = { viewModel.press(HidCommand.Menu) },
             onHome = { viewModel.press(HidCommand.Home) },
-            onRunningApps = { viewModel.holdHome() },
+            onHomeLong = { viewModel.holdHome() },
+            onRunningApps = { viewModel.appSwitcher() },
             onPlayPause = { viewModel.press(HidCommand.PlayPause) },
             onMute = { viewModel.toggleMute() }
         )
@@ -289,8 +292,11 @@ private fun monogram(name: String): String {
 @Composable
 private fun AppIcon(app: AppEntry, onLaunch: (String) -> Unit) {
     val context = LocalContext.current
+    val builtIn = remember(app.bundleId, app.name) { builtInAppIcon(app.bundleId, app.name) }
+
+    // Built-in tvOS apps are not on the store, so don't even try to look them up.
     val artwork by produceState<ImageBitmap?>(initialValue = null, key1 = app.bundleId) {
-        value = ArtworkLoader.icon(context, app.bundleId)?.asImageBitmap()
+        value = if (builtIn != null) null else ArtworkLoader.icon(context, app.bundleId)?.asImageBitmap()
     }
     val color = AppColors[
         (app.bundleId.hashCode().toLong().and(0xFFFFFFFFL) % AppColors.size).toInt()
@@ -305,19 +311,32 @@ private fun AppIcon(app: AppEntry, onLaunch: (String) -> Unit) {
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(14.dp))
-                .background(if (artwork == null) color else Color.Transparent),
+                .background(
+                    when {
+                        artwork != null -> Color.Transparent
+                        builtIn != null -> builtIn.background
+                        else -> color
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             val image = artwork
-            if (image != null) {
-                Image(
+            when {
+                image != null -> Image(
                     bitmap = image,
                     contentDescription = app.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-            } else {
-                Text(
+
+                builtIn != null -> Icon(
+                    imageVector = builtIn.icon,
+                    contentDescription = app.name,
+                    tint = Color.White,
+                    modifier = Modifier.fillMaxSize(0.55f)
+                )
+
+                else -> Text(
                     text = monogram(app.name),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
@@ -421,6 +440,7 @@ private fun BottomControls(
     muted: Boolean,
     onBack: () -> Unit,
     onHome: () -> Unit,
+    onHomeLong: () -> Unit,
     onRunningApps: () -> Unit,
     onPlayPause: () -> Unit,
     onMute: () -> Unit
@@ -430,10 +450,10 @@ private fun BottomControls(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         ControlButton(label = "Quay lại", onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardReturn, contentDescription = "Quay lại")
+            Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Quay lại")
         }
-        ControlButton(label = "Home", onClick = onHome) {
-            Icon(Icons.Filled.Home, contentDescription = "Home")
+        ControlButton(label = "Home", onClick = onHome, onLongClick = onHomeLong) {
+            Icon(Icons.Filled.Home, contentDescription = "Home, giữ để mở Control Center")
         }
         ControlButton(label = "Đang chạy", onClick = onRunningApps) {
             Icon(Icons.Filled.Layers, contentDescription = "Ứng dụng đang chạy")
@@ -458,13 +478,26 @@ private fun ControlButton(
     onLongClick: (() -> Unit)? = null,
     icon: @Composable () -> Unit
 ) {
+    val view = LocalView.current
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
                 .size(54.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.secondaryContainer)
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+                .combinedClickable(
+                    onClick = {
+                        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                        onClick()
+                    },
+                    onLongClick = onLongClick?.let { action ->
+                        {
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            action()
+                        }
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             CompositionLocalProvider(
