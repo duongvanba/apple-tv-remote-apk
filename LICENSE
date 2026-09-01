@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party notice
-
-The Companion link protocol logic in `app/src/main/java/dev/duongvan/atvremote/proto`
-and `.../net` was ported from pyatv (https://github.com/postlund/pyatv), which is
-also distributed under the MIT License, Copyright (c) 2017 Pierre Ståhl.

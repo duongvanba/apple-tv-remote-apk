@@ -1,0 +1,13 @@
+Apple TV Remote
+Copyright (c) 2026 duongvanba
+
+This product includes software ported from pyatv
+(https://github.com/postlund/pyatv), Copyright (c) 2017 Pierre Stahl,
+distributed under the MIT License.
+
+The Companion link protocol implementation under
+app/src/main/java/dev/duongvan/atvremote/proto and .../net follows the byte
+level behaviour of pyatv so that the two stay wire compatible.
+
+Apple, Apple TV, tvOS, HomeKit and AirPlay are trademarks of Apple Inc.
+This project is not affiliated with, endorsed by, or sponsored by Apple Inc.
