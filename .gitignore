@@ -1,0 +1,10 @@
+*.iml
+.gradle/
+build/
+local.properties
+.idea/
+.DS_Store
+captures/
+
+# APK artifacts are published as GitHub releases instead
+*.apk
