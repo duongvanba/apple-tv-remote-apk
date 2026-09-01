@@ -34,10 +34,12 @@ import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -92,6 +94,7 @@ import dev.duongvan.atvremote.net.TouchPhase
 fun RemoteScreen(state: UiState, viewModel: RemoteViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     var showApps by remember { mutableStateOf(false) }
+    var showKeyboard by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.message) {
         state.message?.let {
@@ -115,6 +118,12 @@ fun RemoteScreen(state: UiState, viewModel: RemoteViewModel) {
                 },
                 actions = {
                     if (state.connection is ConnectionState.Connected) {
+                        IconButton(onClick = { showKeyboard = true }) {
+                            Icon(
+                                Icons.Filled.Keyboard,
+                                contentDescription = "Nhập văn bản"
+                            )
+                        }
                         IconButton(
                             onClick = {
                                 showApps = true
@@ -148,6 +157,13 @@ fun RemoteScreen(state: UiState, viewModel: RemoteViewModel) {
                 )
             }
         }
+    }
+
+    if (showKeyboard) {
+        TextInputDialog(
+            onDismiss = { showKeyboard = false },
+            onSend = { text, clearPrevious -> viewModel.sendText(text, clearPrevious) }
+        )
     }
 
     if (showApps) {
@@ -468,6 +484,51 @@ private fun ControlButton(
 }
 
 // ----------------------------------------------------------------- dialogs
+
+@Composable
+private fun TextInputDialog(onDismiss: () -> Unit, onSend: (String, Boolean) -> Unit) {
+    var text by remember { mutableStateOf("") }
+    var clearPrevious by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Nhập văn bản lên Apple TV") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Mở sẵn ô tìm kiếm hoặc ô nhập trên TV, rồi gõ nội dung ở đây.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text("Nội dung") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { clearPrevious = !clearPrevious }
+                ) {
+                    Checkbox(checked = clearPrevious, onCheckedChange = { clearPrevious = it })
+                    Text("Xoá nội dung cũ trước khi gửi")
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSend(text, clearPrevious)
+                    onDismiss()
+                },
+                enabled = text.isNotEmpty() || clearPrevious
+            ) {
+                Text("Gửi")
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Đóng") } }
+    )
+}
 
 @Composable
 private fun PinDialog(

@@ -245,6 +245,9 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
 
     fun launchApp(bundleId: String) = execute { this.launchApp(bundleId) }
 
+    fun sendText(text: String, clearPrevious: Boolean) =
+        execute { inputText(text, clearPrevious) }
+
     fun clearMessage() {
         _state.value = _state.value.copy(message = null)
     }

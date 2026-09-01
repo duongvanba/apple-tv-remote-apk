@@ -2,8 +2,10 @@ package dev.duongvan.atvremote.net
 
 import android.util.Log
 import dev.duongvan.atvremote.data.Credentials
+import dev.duongvan.atvremote.proto.BinaryPlist
 import dev.duongvan.atvremote.proto.Crypto
 import dev.duongvan.atvremote.proto.Opack
+import dev.duongvan.atvremote.proto.RtiPayloads
 import dev.duongvan.atvremote.proto.Srp
 import dev.duongvan.atvremote.proto.Tlv8
 import kotlinx.coroutines.CoroutineScope
@@ -400,6 +402,7 @@ class CompanionClient(
         sessionId = (remoteSid shl 32) or localSid
 
         runCatching { request("TVRCSessionStart", linkedMapOf("ProtocolVersionKey" to "1.2")) }
+        runCatching { request("_tiStart", emptyMap()) }
     }
 
     suspend fun disconnect() {
@@ -409,6 +412,7 @@ class CompanionClient(
                 linkedMapOf("_srvT" to "com.apple.tvremoteservices", "_sid" to sessionId)
             )
             request("_touchStop", linkedMapOf("_i" to 1))
+            request("_tiStop", emptyMap())
         }
         close()
     }
@@ -451,6 +455,33 @@ class CompanionClient(
 
     suspend fun launchApp(bundleId: String) {
         request("_launchApp", linkedMapOf("_bundleID" to bundleId))
+    }
+
+    /**
+     * Sends [text] to the field focused on the TV. The RTI session is restarted
+     * first so the session UUID and current content are up to date.
+     */
+    suspend fun inputText(text: String, clearPrevious: Boolean) {
+        runCatching { request("_tiStop", emptyMap()) }
+        val response = request("_tiStart", emptyMap())
+        val archive = (response["_c"] as? Map<*, *>)?.get("_tiD") as? ByteArray
+            ?: throw CompanionException("Apple TV chưa mở ô nhập văn bản nào")
+
+        val sessionUuid = BinaryPlist.archiveProperty(archive, "sessionUUID") as? ByteArray
+            ?: throw CompanionException("không đọc được phiên nhập văn bản")
+
+        if (clearPrevious) {
+            event(
+                "_tiC",
+                linkedMapOf("_tiV" to 1, "_tiD" to RtiPayloads.clearText(sessionUuid))
+            )
+        }
+        if (text.isNotEmpty()) {
+            event(
+                "_tiC",
+                linkedMapOf("_tiV" to 1, "_tiD" to RtiPayloads.insertText(sessionUuid, text))
+            )
+        }
     }
 
     suspend fun getVolume(): Double? {
