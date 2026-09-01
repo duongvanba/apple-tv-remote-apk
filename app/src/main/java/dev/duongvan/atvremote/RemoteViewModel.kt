@@ -195,6 +195,9 @@ class RemoteViewModel(application: Application) : AndroidViewModel(application) 
 
     fun press(button: HidCommand) = execute { pressButton(button) }
 
+    /** Puts the Apple TV to sleep, which is what its power button does. */
+    fun sleepDevice() = execute { pressButton(HidCommand.Sleep) }
+
     /** Press and hold home opens Control Center on tvOS. */
     fun holdHome() = execute { holdButton(HidCommand.Home, 1200) }
 

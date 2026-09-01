@@ -6,6 +6,16 @@ toàn bộ phần bắt tay, mã hoá và giao thức được viết lại bằ
 
 Đã chạy thật với **Apple TV 4K** trên tvOS hiện hành.
 
+## Ảnh màn hình
+
+| Chọn thiết bị | Điều khiển | Danh sách ứng dụng |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/01-devices.png" width="230"> | <img src="docs/screenshots/02-remote.png" width="230"> | <img src="docs/screenshots/04-apps.png" width="230"> |
+
+| Nhập văn bản | Tắt nguồn |
+|:---:|:---:|
+| <img src="docs/screenshots/03-keyboard.png" width="230"> | <img src="docs/screenshots/05-power.png" width="230"> |
+
 ## Tính năng
 
 **Màn hình chọn thiết bị**
@@ -23,8 +33,9 @@ toàn bộ phần bắt tay, mã hoá và giao thức được viết lại bằ
   hai lần nhấn Home để bật App Switcher
 - **Phím âm lượng vật lý** của điện thoại điều khiển âm lượng Apple TV kèm một nhịp
   rung nhẹ; sự kiện bị chặn lại nên không làm đổi âm lượng của máy
-- Nút menu ở góc phải mở **modal danh sách ứng dụng** dạng lưới 5 cột, chọn app
-  là mở luôn trên TV
+- Ba nút ở góc phải: **tắt nguồn** (có hộp thoại xác nhận trước khi cho Apple TV
+  ngủ), **bàn phím** và **danh sách ứng dụng** dạng lưới 5 cột, chọn app là mở
+  luôn trên TV
 - Icon app lấy từ iTunes lookup theo bundle ID, cache trên đĩa nên chỉ tải một lần;
   các app sẵn có của tvOS (App Store, Arcade, Cài đặt, Máy tính, Nhạc, TV, Tìm kiếm)
   dùng icon vector cố định vì không có trên App Store

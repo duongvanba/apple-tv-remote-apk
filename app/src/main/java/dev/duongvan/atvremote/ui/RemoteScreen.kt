@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -97,6 +98,7 @@ fun RemoteScreen(state: UiState, viewModel: RemoteViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     var showApps by remember { mutableStateOf(false) }
     var showKeyboard by remember { mutableStateOf(false) }
+    var showPowerConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.message) {
         state.message?.let {
@@ -120,6 +122,12 @@ fun RemoteScreen(state: UiState, viewModel: RemoteViewModel) {
                 },
                 actions = {
                     if (state.connection is ConnectionState.Connected) {
+                        IconButton(onClick = { showPowerConfirm = true }) {
+                            Icon(
+                                Icons.Filled.PowerSettingsNew,
+                                contentDescription = "Tắt Apple TV"
+                            )
+                        }
                         IconButton(onClick = { showKeyboard = true }) {
                             Icon(
                                 Icons.Filled.Keyboard,
@@ -159,6 +167,27 @@ fun RemoteScreen(state: UiState, viewModel: RemoteViewModel) {
                 )
             }
         }
+    }
+
+    if (showPowerConfirm) {
+        AlertDialog(
+            onDismissRequest = { showPowerConfirm = false },
+            title = { Text("Tắt Apple TV?") },
+            text = { Text("Apple TV sẽ chuyển sang chế độ ngủ. Bấm nút bất kỳ để bật lại.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.sleepDevice()
+                        showPowerConfirm = false
+                    }
+                ) {
+                    Text("Tắt")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPowerConfirm = false }) { Text("Huỷ") }
+            }
+        )
     }
 
     if (showKeyboard) {
